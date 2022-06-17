@@ -19,7 +19,7 @@ function App() {
 
   useEffect(() => {
     const getAuthUrl = async () => {
-      const response = await fetch("http://localhost:5000/login", {
+      const response = await fetch("http://192.168.4.69:5000/login", {
         method: "GET",
         mode: "cors",
       });
@@ -31,7 +31,7 @@ function App() {
       const searchParams = new URLSearchParams(window.location.search);
       const code = searchParams.get("code");
       const response = await fetch(
-        `http://localhost:5000/access-token?code=${code}`,
+        `http://192.168.4.69:5000/access-token?code=${code}`,
         {
           method: "GET",
           mode: "cors",
@@ -43,7 +43,7 @@ function App() {
     };
     const getCurrentSong = async () => {
       const songResponse = await fetch(
-        `http://localhost:5000/current-song?token=${localStorage.getItem(
+        `http://192.168.4.69:5000/current-song?token=${localStorage.getItem(
           "access_token"
         )}`,
         {
@@ -56,7 +56,7 @@ function App() {
       const artist = songResult.item.artists[0].name;
       const title = songResult.item.name;
       const lyricsResponse = await fetch(
-        `http://localhost:5000/lyrics?artist=${artist}&title=${title}`,
+        `http://192.168.4.69:5000/lyrics?artist=${artist}&title=${title}`,
         {
           method: "GET",
           mode: "cors",
