@@ -8,6 +8,14 @@ function App() {
   const [currentSong, setCurrentSong] = useState();
   const [currentLyrics, setCurrentLyrics] = useState();
   const [authUrl, setAuthUrl] = useState();
+  const baseUrl = "http://192.168.4.69:5000";
+  const fetchOptions = {
+    method: "GET",
+    mode: "cors",
+    headers: {
+      "Access-Control-Request-Private-Network": true,
+    },
+  };
 
   useEffect(() => {
     if (!currentSong && !isLogInPage) {
@@ -19,10 +27,7 @@ function App() {
 
   useEffect(() => {
     const getAuthUrl = async () => {
-      const response = await fetch("http://192.168.4.69:5000/login", {
-        method: "GET",
-        mode: "cors",
-      });
+      const response = await fetch(`${baseUrl}/login`, fetchOptions);
 
       const result = await response.text();
       setAuthUrl(result);
@@ -31,11 +36,8 @@ function App() {
       const searchParams = new URLSearchParams(window.location.search);
       const code = searchParams.get("code");
       const response = await fetch(
-        `http://192.168.4.69:5000/access-token?code=${code}`,
-        {
-          method: "GET",
-          mode: "cors",
-        }
+        `${baseUrl}/access-token?code=${code}`,
+        fetchOptions
       );
       const result = await response.json();
       localStorage.setItem("access_token", result.access_token);
@@ -43,24 +45,16 @@ function App() {
     };
     const getCurrentSong = async () => {
       const songResponse = await fetch(
-        `http://192.168.4.69:5000/current-song?token=${localStorage.getItem(
-          "access_token"
-        )}`,
-        {
-          method: "GET",
-          mode: "cors",
-        }
+        `${baseUrl}/current-song?token=${localStorage.getItem("access_token")}`,
+        fetchOptions
       );
 
       const songResult = await songResponse.json();
       const artist = songResult.item.artists[0].name;
       const title = songResult.item.name;
       const lyricsResponse = await fetch(
-        `http://192.168.4.69:5000/lyrics?artist=${artist}&title=${title}`,
-        {
-          method: "GET",
-          mode: "cors",
-        }
+        `${baseUrl}/lyrics?artist=${artist}&title=${title}`,
+        fetchOptions
       );
       const lyricsResult = await lyricsResponse.text();
       setCurrentLyrics(JSON.parse(lyricsResult).lyrics);
