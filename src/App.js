@@ -12,9 +12,6 @@ function App() {
   const fetchOptions = {
     method: "GET",
     mode: "cors",
-    headers: {
-      "Access-Control-Request-Private-Network": true,
-    },
   };
 
   useEffect(() => {
