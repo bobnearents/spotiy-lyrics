@@ -8,7 +8,7 @@ function App() {
   const [currentSong, setCurrentSong] = useState();
   const [currentLyrics, setCurrentLyrics] = useState();
   const [authUrl, setAuthUrl] = useState();
-  const baseUrl = "http://192.168.4.69:5000";
+  const baseUrl = "https://radiant-meadow-01573.herokuapp.com";
   const fetchOptions = {
     method: "GET",
     mode: "cors",
