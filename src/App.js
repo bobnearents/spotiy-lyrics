@@ -3,12 +3,16 @@ import "./App.css";
 import Song from "./Song/Song";
 
 function App() {
+  console.log(process.env);
   const [isLoading, setIsLoading] = useState(true);
   const [isLogInPage, setIsLogInPage] = useState(false);
   const [currentSong, setCurrentSong] = useState();
   const [currentLyrics, setCurrentLyrics] = useState();
   const [authUrl, setAuthUrl] = useState();
-  const baseUrl = "https://radiant-meadow-01573.herokuapp.com";
+  const baseUrl =
+    process.env.NODE_ENV === "development"
+      ? "http://localhost:5000"
+      : "https://radiant-meadow-01573.herokuapp.com";
   const fetchOptions = {
     method: "GET",
     mode: "cors",
@@ -23,6 +27,9 @@ function App() {
   }, [currentSong, isLogInPage]);
 
   useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const code = searchParams.get("code");
+
     const getAuthUrl = async () => {
       const response = await fetch(`${baseUrl}/login`, fetchOptions);
 
@@ -47,6 +54,7 @@ function App() {
       );
 
       const songResult = await songResponse.json();
+      setCurrentSong(songResult);
       const artist = songResult.item.artists[0].name;
       const title = songResult.item.name;
       console.log("song:", songResult.item);
@@ -54,10 +62,10 @@ function App() {
         `${baseUrl}/lyrics?artist=${artist}&title=${title}`,
         fetchOptions
       );
-      const lyricsResult = await lyricsResponse.json();
+      console.log(lyricsResponse);
+      const lyricsResult = await lyricsResponse.text();
       console.log("lyrics:", lyricsResult);
-      setCurrentLyrics(JSON.parse(lyricsResult).lyrics);
-      setCurrentSong(songResult);
+      setCurrentLyrics(lyricsResult);
     };
     //if we already have an access token then we can just get song info
     if (localStorage.access_token) {
@@ -69,10 +77,6 @@ function App() {
     //otherwise if user has already authorized, then lets get the tokens
     else if (window.location.search.length) {
       console.log("need tokens!");
-      const searchParams = new URLSearchParams(window.location.search);
-      const code = searchParams.get("code");
-      searchParams.delete("code");
-
       getToken(code);
     } else {
       console.log("let's get auth!");
@@ -89,7 +93,7 @@ function App() {
   ) : (
     <>
       <Song song={currentSong} />
-      <p className="current-lyrics">{currentLyrics}</p>
+      <Lyrics lyrics={currentLyrics} />
     </>
   );
 }
@@ -100,6 +104,14 @@ function Loading() {
 
 function LogIn(props) {
   return <a href={props.authUrl}>Log in to Spotify to continue...</a>;
+}
+
+function Lyrics(props) {
+  return props.lyrics ? (
+    <p className="current-lyrics">{props.lyrics}</p>
+  ) : (
+    <p>loading...</p>
+  );
 }
 
 export default App;
