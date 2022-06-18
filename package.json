@@ -1,5 +1,6 @@
 {
   "name": "spotify",
+  "homepage": "./",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -11,7 +12,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "push": "npm run build && git add . && git commit -m 'add build files' && git push origin master"
   },
   "eslintConfig": {
     "extends": [
