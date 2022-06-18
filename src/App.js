@@ -37,6 +37,8 @@ function App() {
       const result = await response.json();
       localStorage.setItem("access_token", result.access_token);
       localStorage.setItem("refresh_token", result.refresh_token);
+      //now proceed with getting song
+      getCurrentSong();
     };
     const getCurrentSong = async () => {
       const songResponse = await fetch(
