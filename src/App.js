@@ -29,9 +29,7 @@ function App() {
       const result = await response.text();
       setAuthUrl(result);
     };
-    const getToken = async () => {
-      const searchParams = new URLSearchParams(window.location.search);
-      const code = searchParams.get("code");
+    const getToken = async (code) => {
       const response = await fetch(
         `${baseUrl}/access-token?code=${code}`,
         fetchOptions
@@ -49,24 +47,33 @@ function App() {
       const songResult = await songResponse.json();
       const artist = songResult.item.artists[0].name;
       const title = songResult.item.name;
+      console.log("song:", songResult.item);
       const lyricsResponse = await fetch(
         `${baseUrl}/lyrics?artist=${artist}&title=${title}`,
         fetchOptions
       );
-      const lyricsResult = await lyricsResponse.text();
+      const lyricsResult = await lyricsResponse.json();
+      console.log("lyrics:", lyricsResult);
       setCurrentLyrics(JSON.parse(lyricsResult).lyrics);
       setCurrentSong(songResult);
     };
     //if we already have an access token then we can just get song info
     if (localStorage.access_token) {
+      console.log("token");
       getCurrentSong();
     } else if (localStorage.refresh_token) {
       console.log("time to refresh token???", localStorage);
     }
     //otherwise if user has already authorized, then lets get the tokens
     else if (window.location.search.length) {
-      getToken();
+      console.log("need tokens!");
+      const searchParams = new URLSearchParams(window.location.search);
+      const code = searchParams.get("code");
+      searchParams.delete("code");
+
+      getToken(code);
     } else {
+      console.log("let's get auth!");
       //otherwise get user to authorize
       getAuthUrl();
       setIsLogInPage(true);
