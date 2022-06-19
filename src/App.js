@@ -66,7 +66,7 @@ function App() {
         `${baseUrl}/access-token?code=${code}`,
         fetchOptions
       );
-      window.history.replaceState({}, document.title, "/");
+      window.history.replaceState({}, document.title, "/lyrics");
 
       const result = await response.json();
       localStorage.setItem("access_token", result.access_token);
