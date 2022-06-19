@@ -3,7 +3,6 @@ import "./App.css";
 import Song from "./Song/Song";
 
 function App() {
-  console.log(process.env);
   const [isLoading, setIsLoading] = useState(true);
   const [isLogInPage, setIsLogInPage] = useState(false);
   const [currentSong, setCurrentSong] = useState();
@@ -17,6 +16,22 @@ function App() {
     method: "GET",
     mode: "cors",
   };
+
+  useEffect(() => {
+    //set up use effect for below code to run when current song changes
+    const getLyrics = async () => {
+      const artist = currentSong.item.artists[0].name;
+      const title = currentSong.item.name;
+      const lyricsResponse = await fetch(
+        `${baseUrl}/lyrics?artist=${artist}&title=${title}`,
+        fetchOptions
+      );
+      const lyricsResult = await lyricsResponse.json();
+      console.log("lyrics:", lyricsResult);
+      setCurrentLyrics(lyricsResult.lyrics);
+    };
+    if (currentSong) getLyrics();
+  }, [currentSong]);
 
   useEffect(() => {
     if (!currentSong && !isLogInPage) {
@@ -36,15 +51,28 @@ function App() {
       const result = await response.text();
       setAuthUrl(result);
     };
+    const refreshToken = async () => {
+      const refreshToken = localStorage.getItem("refresh_token");
+      const response = await fetch(
+        `${baseUrl}/refresh_token?refresh_token=${refreshToken}`,
+        fetchOptions
+      );
+      const result = await response.json();
+      localStorage.setItem("access_token", result.access_token);
+      getCurrentSong();
+    };
     const getToken = async (code) => {
       const response = await fetch(
         `${baseUrl}/access-token?code=${code}`,
         fetchOptions
       );
+      window.history.replaceState({}, document.title, "/");
+
       const result = await response.json();
       localStorage.setItem("access_token", result.access_token);
       localStorage.setItem("refresh_token", result.refresh_token);
       //now proceed with getting song
+
       getCurrentSong();
     };
     const getCurrentSong = async () => {
@@ -54,25 +82,16 @@ function App() {
       );
 
       const songResult = await songResponse.json();
-      setCurrentSong(songResult);
-      const artist = songResult.item.artists[0].name;
-      const title = songResult.item.name;
-      console.log("song:", songResult.item);
-      const lyricsResponse = await fetch(
-        `${baseUrl}/lyrics?artist=${artist}&title=${title}`,
-        fetchOptions
-      );
-      console.log(lyricsResponse);
-      const lyricsResult = await lyricsResponse.text();
-      console.log("lyrics:", lyricsResult);
-      setCurrentLyrics(lyricsResult);
+      if (songResult.error) {
+        if (songResult.error === "invalid or expired token") refreshToken();
+      } else {
+        setCurrentSong(songResult);
+      }
     };
     //if we already have an access token then we can just get song info
     if (localStorage.access_token) {
       console.log("token");
       getCurrentSong();
-    } else if (localStorage.refresh_token) {
-      console.log("time to refresh token???", localStorage);
     }
     //otherwise if user has already authorized, then lets get the tokens
     else if (window.location.search.length) {
@@ -86,13 +105,22 @@ function App() {
     }
   }, []);
 
+  const logout = () => {
+    localStorage.clear();
+  };
+
   return isLoading ? (
     <Loading />
   ) : isLogInPage ? (
     <LogIn authUrl={authUrl} />
   ) : (
     <>
-      <Song song={currentSong} />
+      <div className="header">
+        <Song song={currentSong} />
+        <a href="/" onClick={logout}>
+          logout
+        </a>
+      </div>
       <Lyrics lyrics={currentLyrics} />
     </>
   );

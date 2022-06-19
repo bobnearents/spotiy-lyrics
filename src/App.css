@@ -7,6 +7,11 @@ body {
   padding: 20px;
 }
 
+.header {
+  display: flex;
+  justify-content: space-between;
+}
+
 .current-song {
   display: flex;
   align-items: center;

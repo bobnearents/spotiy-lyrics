@@ -33,8 +33,12 @@ const Album = (props) => {
 const Artists = (props) => {
   return (
     <div className="artists-container">
-      {props.artists.map((artist) => {
-        return <a href={artist.external_urls.spotify}>{artist.name}</a>;
+      {props.artists.map((artist, i) => {
+        return (
+          <a key={i} href={artist.external_urls.spotify}>
+            {artist.name}
+          </a>
+        );
       })}
     </div>
   );
