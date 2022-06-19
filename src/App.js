@@ -117,9 +117,7 @@ function App() {
     <>
       <div className="header">
         <Song song={currentSong} />
-        <a href="/" onClick={logout}>
-          logout
-        </a>
+        <a onClick={logout}>logout</a>
       </div>
       <Lyrics lyrics={currentLyrics} />
     </>
